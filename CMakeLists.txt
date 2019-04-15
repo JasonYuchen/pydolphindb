@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.00)
+
 project(PyDolphinDB)
 
 add_definitions(-DLINUX -DLOGGING_LEVEL_1 -D_GLIBCXX_USE_CXX11_ABI=0)
@@ -13,8 +14,13 @@ link_directories(api-cplusplus/bin/linux_x64)
 link_libraries(libDolphinDBAPI.so)
 
 add_subdirectory(pybind11)
+
 pybind11_add_module(PyDolphinDB 
-	src/main.cpp)
+	src/module.cpp
+	src/Utils.hpp
+	src/Utils.cpp
+	src/Session.hpp
+	src/Session.cpp)
 
 target_link_libraries(PyDolphinDB
 	PUBLIC
