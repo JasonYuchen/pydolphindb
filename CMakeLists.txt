@@ -4,6 +4,7 @@ project(PyDolphinDB)
 
 add_definitions(-DLINUX -DLOGGING_LEVEL_1 -D_GLIBCXX_USE_CXX11_ABI=0)
 
+set(PYBIND11_CPP_STANDARD -std=c++11)
 set(PYTHON_EXECUTABLE /usr/bin/python3)
 set(CMAKE_INSTALL_RPATH "$ORIGIN")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -17,9 +18,9 @@ add_subdirectory(pybind11)
 
 pybind11_add_module(PyDolphinDB 
 	src/module.cpp
-	src/Utils.hpp
+	src/Utils.h
 	src/Utils.cpp
-	src/Session.hpp
+	src/Session.h
 	src/Session.cpp)
 
 target_link_libraries(PyDolphinDB
