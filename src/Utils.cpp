@@ -220,7 +220,7 @@ ddb::DATA_TYPE Utils::DataTypeFromNumpyArray(py::array array) {
 }
 
 
-py::object toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::VectorSP) = [](ddb::VectorSP){}) {
+py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::VectorSP)) {
     if (obj.isNull() || obj->isNothing() || obj->isNull()) {
         return py::none();
     }
@@ -538,7 +538,7 @@ py::object toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::V
     }
 }
 
-ddb::ConstantSP toDolphinDB(py::object obj) {
+ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
     if (py::isinstance(obj, PyType::nparray_)) {
         ddb::DATA_TYPE type = Utils::DataTypeFromNumpyArray(obj);
         py::array pyVec = obj;

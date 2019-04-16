@@ -72,7 +72,7 @@ struct Utils {
     static inline void SET_DDBNAN(void *p, size_t len = 1);
     static inline bool IS_NPNAN(void *p);
     static ddb::DATA_TYPE DataTypeFromNumpyArray(py::array array);
-    static py::object toPython(ddb::ConstantSP obj);
+    static py::object toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::VectorSP) = [](ddb::VectorSP){});
     static ddb::ConstantSP toDolphinDB(py::object obj);
 };
 
