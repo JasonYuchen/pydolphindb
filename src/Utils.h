@@ -24,7 +24,8 @@ struct PyFunction {
 };
 
 struct PyType {
-    static const handle datetime64_;    // type, equal to np.datetime64
+    // type, equal to np.datetime64
+    static const handle datetime64_;
 
     // pandas types (use isinstance)
     static const handle pddataframe_;
@@ -64,12 +65,15 @@ struct PyType {
 };
 
 struct Utils {
-    std::string DataCategoryToString(ddb::DATA_CATEGORY cate) noexcept;
-    std::string DataFormToString(ddb::DATA_FORM form) noexcept;
-    std::string DataTypeToString(ddb::DATA_TYPE type) noexcept;
+    static std::string DataCategoryToString(ddb::DATA_CATEGORY cate) noexcept;
+    static std::string DataFormToString(ddb::DATA_FORM form) noexcept;
+    static std::string DataTypeToString(ddb::DATA_TYPE type) noexcept;
     static inline void SET_NPNAN(void *p, size_t len = 1);
     static inline void SET_DDBNAN(void *p, size_t len = 1);
     static inline bool IS_NPNAN(void *p);
+    static ddb::DATA_TYPE DataTypeFromNumpyArray(py::array array);
+    static py::object toPython(ddb::ConstantSP obj);
+    static ddb::ConstantSP toDolphinDB(py::object obj);
 };
 
 }  // namespace pydolphindb
