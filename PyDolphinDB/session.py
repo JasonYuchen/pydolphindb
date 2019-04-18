@@ -11,7 +11,7 @@ import sys
 
 sys.path.append(os.path.dirname(__file__))
 
-import dolphindbcpp as ddbcpp
+import pydolphindb
 
 def _generate_tablename():
     return "TMP_TBL_" + uuid.uuid4().hex[:8]
@@ -32,7 +32,7 @@ class session(object):
     4: Matrix object returns a numpy array
     """
     def __init__(self, host=None, port=None, userid="", password=""):
-        self.cpp = ddbcpp.sessionimpl()
+        self.cpp = pydolphindb.sessionimpl()
         self.host = host
         self.port = port
         self.userid = userid
