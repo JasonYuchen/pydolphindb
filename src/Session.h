@@ -1,31 +1,28 @@
 #ifndef PYDOLPHINDB_SESSION_H_
 #define PYDOLPHINDB_SESSION_H_
+
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+
+#include <string>
+#include <unordered_map>
+
 #include <DolphinDB.h>
 #include <Util.h>
 #include <Streaming.h>
-#include <string>
-#include <unordered_map>
+
 #include "Utils.h"
 
-namespace pydolphindb
-{
+namespace pydolphindb {
 
 namespace py = pybind11;
 namespace ddb = dolphindb;
 
 class Session {
  public:
-    Session()
-            : host_()
-            , port_(-1)
-            , userId_()
-            , password_()
-            , encrypted_(true)
-            , dbConnection_()
-            , nullValuePolicy_([](ddb::VectorSP){})
-            , subscriber_(nullptr) {}
+    Session();
+    Session(const Session &) = delete;
+    Session &operator=(const Session &) = delete;
 
     bool connect(const std::string &host,
                  int port,
@@ -80,6 +77,7 @@ class Session {
     bool encrypted_;
     ddb::DBConnection dbConnection_;
     ddb::SmartPointer<ddb::ThreadedClient> subscriber_;
+    int listeningPort_;
     std::unordered_map<string, ddb::ThreadSP> topicThread_;
     void (*nullValuePolicy_)(ddb::VectorSP);
 };
