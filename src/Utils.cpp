@@ -18,12 +18,12 @@ namespace pydolphindb {
 namespace pymodule {
 const module numpy_ = module::import("numpy");
 const module pandas_ = module::import("pandas");
-}
+}  // namespace pymodule
 
 namespace pyfunction {
 const handle isnan_ = pymodule::numpy_.attr("isnan");
 const handle sum_ = pymodule::numpy_.attr("sum");
-}
+}  // namespace pyfunction
 
 namespace pytype {
 const handle datetime64_ = pymodule::numpy_.attr("datetime64");
@@ -54,7 +54,7 @@ const handle pyset_ = py::set().get_type().inc_ref();
 const handle pytuple_ = py::tuple().get_type().inc_ref();
 const handle pylist_ = py::list().get_type().inc_ref();
 const handle pydict_ = py::dict().get_type().inc_ref();
-}
+}  // namespace pytype
 
 namespace utils {
 std::string DataCategoryToString(ddb::DATA_CATEGORY cate) noexcept {
@@ -903,6 +903,6 @@ ddb::ConstantSP toDolphinDB(py::object obj) {
         throw std::runtime_error("unrecognized Python type: " + py::str(obj.get_type()).cast<std::string>());
     }
 }
-}
+}  // namespace utils
 
 }  // namespace pydolphindb

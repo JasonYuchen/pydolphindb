@@ -8,7 +8,7 @@ namespace ddb = dolphindb;
 using Session = pydolphindb::Session;
 
 PYBIND11_MODULE(pydolphindb, m) {
-    m.doc() = R"pbdoc(pydolphindb)pbdoc";
+    m.doc() = R"pbdoc(pydolphindb: yet another C++ implemented DolphinDB Python)pbdoc";
 
     py::class_<Session>(m, "session")
             .def(py::init<>())
@@ -28,6 +28,6 @@ PYBIND11_MODULE(pydolphindb, m) {
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;
 #else
-    m.attr("__version__") = "dev";
+    m.attr("__version__") = "unknown";
 #endif
 }

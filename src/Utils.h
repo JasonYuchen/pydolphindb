@@ -75,7 +75,7 @@ namespace utils {
     ddb::DATA_TYPE DataTypeFromNumpyArray(py::array array);
     py::object toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::VectorSP) = [](ddb::VectorSP){});
     ddb::ConstantSP toDolphinDB(py::object obj);
-}  // namespace Utils
+}  // namespace utils
 
 }  // namespace pydolphindb
 
