@@ -2,79 +2,80 @@
 #define PYDOLPHINDB_UTILS_H_
 
 #include <pybind11/pybind11.h>
+
 #include <string>
+
 #include <Types.h>
 
-namespace pydolphindb
-{
+namespace pydolphindb {
 
 namespace py = pybind11;
 namespace ddb = dolphindb;
 using py::module;
 using py::handle;
 
-struct PyModule {
-    static const module numpy_;
-    static const module pandas_;
-};
+namespace pymodule {
+    extern const module numpy_;
+    extern const module pandas_;
+}
 
-struct PyFunction {
-    static const handle isnan_;
-    static const handle sum_;
-};
+namespace pyfunction {
+    extern const handle isnan_;
+    extern const handle sum_;
+}
 
-struct PyType {
+namespace pytype {
     // type, equal to np.datetime64
-    static const handle datetime64_;
+    extern const handle datetime64_;
 
     // pandas types (use isinstance)
-    static const handle pddataframe_;
+    extern const handle pddataframe_;
 
     // numpy dtypes (instances of dtypes, use equal)
-    static const handle nparray_;
-    static const handle npbool_;
-    static const handle npint8_;
-    static const handle npint16_;
-    static const handle npint32_;
-    static const handle npint64_;
-    static const handle npfloat32_;
-    static const handle npfloat64_;
-    static const handle npdatetime64M_;
-    static const handle npdatetime64D_;
-    static const handle npdatetime64m_;
-    static const handle npdatetime64s_;
-    static const handle npdatetime64ms_;
-    static const handle npdatetime64ns_;
-    static const handle npdatetime64_;  // dtype, equal to np.datetime64().dtype
-    static const handle npobject_;
+    extern const handle nparray_;
+    extern const handle npbool_;
+    extern const handle npint8_;
+    extern const handle npint16_;
+    extern const handle npint32_;
+    extern const handle npint64_;
+    extern const handle npfloat32_;
+    extern const handle npfloat64_;
+    extern const handle npdatetime64M_;
+    extern const handle npdatetime64D_;
+    extern const handle npdatetime64m_;
+    extern const handle npdatetime64s_;
+    extern const handle npdatetime64ms_;
+    extern const handle npdatetime64ns_;
+    extern const handle npdatetime64_;  // dtype, equal to np.datetime64().dtype
+    extern const handle npobject_;
 
     // python types (use isinstance)
-    static const handle pynone_;
-    static const handle pybool_;
-    static const handle pyint_;
-    static const handle pyfloat_;
-    static const handle pystr_;
-    static const handle pybytes_;
-    static const handle pyset_;
-    static const handle pytuple_;
-    static const handle pylist_;
-    static const handle pydict_;
+    extern const handle pynone_;
+    extern const handle pybool_;
+    extern const handle pyint_;
+    extern const handle pyfloat_;
+    extern const handle pystr_;
+    extern const handle pybytes_;
+    extern const handle pyset_;
+    extern const handle pytuple_;
+    extern const handle pylist_;
+    extern const handle pydict_;
 
     // null map
-    static const uint64_t npnan_ = 9221120237041090560LL;
-};
+    // const uint64_t npnan_ = 9221120237041090560LL;
+}
 
-struct Utils {
-    static std::string DataCategoryToString(ddb::DATA_CATEGORY cate) noexcept;
-    static std::string DataFormToString(ddb::DATA_FORM form) noexcept;
-    static std::string DataTypeToString(ddb::DATA_TYPE type) noexcept;
-    static inline void SET_NPNAN(void *p, size_t len = 1);
-    static inline void SET_DDBNAN(void *p, size_t len = 1);
-    static inline bool IS_NPNAN(void *p);
-    static ddb::DATA_TYPE DataTypeFromNumpyArray(py::array array);
-    static py::object toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::VectorSP) = [](ddb::VectorSP){});
-    static ddb::ConstantSP toDolphinDB(py::object obj);
-};
+namespace utils {
+    std::string DataCategoryToString(ddb::DATA_CATEGORY cate) noexcept;
+    std::string DataFormToString(ddb::DATA_FORM form) noexcept;
+    std::string DataTypeToString(ddb::DATA_TYPE type) noexcept;
+    inline void SET_NPNAN(void *p, size_t len = 1);
+    inline void SET_DDBNAN(void *p, size_t len = 1);
+    inline bool IS_NPNAN(void *p);
+    ddb::DATA_TYPE DataTypeFromNumpyArray(py::array array);
+    py::object toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::VectorSP) = [](ddb::VectorSP){});
+    ddb::ConstantSP toDolphinDB(py::object obj);
+}  // namespace Utils
 
 }  // namespace pydolphindb
 

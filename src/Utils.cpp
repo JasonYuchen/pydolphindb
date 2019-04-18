@@ -1,6 +1,8 @@
+#include <pybind11/numpy.h>
+
 #include <DolphinDB.h>
 #include <Util.h>
-#include <pybind11/numpy.h>
+
 #include "Utils.h"
 
 #if defined(__GNUC__) && __GNUC__ >= 4
@@ -11,46 +13,51 @@
 #define UNLIKELY(x) (x)
 #endif
 
-namespace pydolphindb
-{
+namespace pydolphindb {
 
-const module PyModule::numpy_ = module::import("numpy");
-const module PyModule::pandas_ = module::import("pandas");
+namespace pymodule {
+const module numpy_ = module::import("numpy");
+const module pandas_ = module::import("pandas");
+}
 
-const handle PyFunction::isnan_ = PyModule::numpy_.attr("isnan");
-const handle PyFunction::sum_ = PyModule::numpy_.attr("sum");
+namespace pyfunction {
+const handle isnan_ = pymodule::numpy_.attr("isnan");
+const handle sum_ = pymodule::numpy_.attr("sum");
+}
 
-const handle PyType::datetime64_ = PyModule::numpy_.attr("datetime64");
-const handle PyType::pddataframe_ = PyModule::pandas_.attr("DataFrame")().get_type().inc_ref();
-const handle PyType::nparray_ = py::array().get_type().inc_ref();
-const handle PyType::npbool_ = py::dtype("bool").inc_ref();
-const handle PyType::npint8_ = py::dtype("int8").inc_ref();
-const handle PyType::npint16_ = py::dtype("int16").inc_ref();
-const handle PyType::npint32_ = py::dtype("int32").inc_ref();
-const handle PyType::npint64_ = py::dtype("int64").inc_ref();
-const handle PyType::npfloat32_ = py::dtype("float32").inc_ref();
-const handle PyType::npfloat64_ = py::dtype("float64").inc_ref();
-const handle PyType::npdatetime64M_ = py::dtype("datetime64[M]").inc_ref();
-const handle PyType::npdatetime64D_ = py::dtype("datetime64[D]").inc_ref();
-const handle PyType::npdatetime64m_ = py::dtype("datetime64[m]").inc_ref();
-const handle PyType::npdatetime64s_ = py::dtype("datetime64[s]").inc_ref();
-const handle PyType::npdatetime64ms_ = py::dtype("datetime64[ms]").inc_ref();
-const handle PyType::npdatetime64ns_ = py::dtype("datetime64[ns]").inc_ref();
-const handle PyType::npdatetime64_ = py::dtype("datetime64").inc_ref();
-const handle PyType::npobject_ = py::dtype("object").inc_ref();
-const handle PyType::pynone_ = py::none().get_type().inc_ref();
-const handle PyType::pybool_ = py::bool_().get_type().inc_ref();
-const handle PyType::pyint_ = py::int_().get_type().inc_ref();
-const handle PyType::pyfloat_ = py::float_().get_type().inc_ref();
-const handle PyType::pystr_ = py::str().get_type().inc_ref();
-const handle PyType::pybytes_ = py::bytes().get_type().inc_ref();
-const handle PyType::pyset_ = py::set().get_type().inc_ref();
-const handle PyType::pytuple_ = py::tuple().get_type().inc_ref();
-const handle PyType::pylist_ = py::list().get_type().inc_ref();
-const handle PyType::pydict_ = py::dict().get_type().inc_ref();
+namespace pytype {
+const handle datetime64_ = pymodule::numpy_.attr("datetime64");
+const handle pddataframe_ = pymodule::pandas_.attr("DataFrame")().get_type().inc_ref();
+const handle nparray_ = py::array().get_type().inc_ref();
+const handle npbool_ = py::dtype("bool").inc_ref();
+const handle npint8_ = py::dtype("int8").inc_ref();
+const handle npint16_ = py::dtype("int16").inc_ref();
+const handle npint32_ = py::dtype("int32").inc_ref();
+const handle npint64_ = py::dtype("int64").inc_ref();
+const handle npfloat32_ = py::dtype("float32").inc_ref();
+const handle npfloat64_ = py::dtype("float64").inc_ref();
+const handle npdatetime64M_ = py::dtype("datetime64[M]").inc_ref();
+const handle npdatetime64D_ = py::dtype("datetime64[D]").inc_ref();
+const handle npdatetime64m_ = py::dtype("datetime64[m]").inc_ref();
+const handle npdatetime64s_ = py::dtype("datetime64[s]").inc_ref();
+const handle npdatetime64ms_ = py::dtype("datetime64[ms]").inc_ref();
+const handle npdatetime64ns_ = py::dtype("datetime64[ns]").inc_ref();
+const handle npdatetime64_ = py::dtype("datetime64").inc_ref();
+const handle npobject_ = py::dtype("object").inc_ref();
+const handle pynone_ = py::none().get_type().inc_ref();
+const handle pybool_ = py::bool_().get_type().inc_ref();
+const handle pyint_ = py::int_().get_type().inc_ref();
+const handle pyfloat_ = py::float_().get_type().inc_ref();
+const handle pystr_ = py::str().get_type().inc_ref();
+const handle pybytes_ = py::bytes().get_type().inc_ref();
+const handle pyset_ = py::set().get_type().inc_ref();
+const handle pytuple_ = py::tuple().get_type().inc_ref();
+const handle pylist_ = py::list().get_type().inc_ref();
+const handle pydict_ = py::dict().get_type().inc_ref();
+}
 
-
-std::string Utils::DataCategoryToString(ddb::DATA_CATEGORY cate) noexcept {
+namespace utils {
+std::string DataCategoryToString(ddb::DATA_CATEGORY cate) noexcept {
     switch (cate) {
         case ddb::NOTHING:
             return "NOTHING";
@@ -73,7 +80,7 @@ std::string Utils::DataCategoryToString(ddb::DATA_CATEGORY cate) noexcept {
     }
 }
 
-std::string Utils::DataFormToString(ddb::DATA_FORM form) noexcept {
+std::string DataFormToString(ddb::DATA_FORM form) noexcept {
     switch (form) {
         case ddb::DF_SCALAR:
             return "SCALAR";
@@ -98,7 +105,7 @@ std::string Utils::DataFormToString(ddb::DATA_FORM form) noexcept {
     }
 }
 
-std::string Utils::DataTypeToString(ddb::DATA_TYPE type) noexcept {
+std::string DataTypeToString(ddb::DATA_TYPE type) noexcept {
     switch (type) {
         case ddb::DT_VOID:
             return "VOID";
@@ -163,64 +170,64 @@ std::string Utils::DataTypeToString(ddb::DATA_TYPE type) noexcept {
     }
 }
 
-inline void Utils::SET_NPNAN(void *p, size_t len) {
+inline void SET_NPNAN(void *p, size_t len) {
     std::fill(reinterpret_cast<uint64_t*>(p),
               reinterpret_cast<uint64_t*>(p)+len,
               9221120237041090560LL);
 }
 
-inline void Utils::SET_DDBNAN(void *p, size_t len) {
+inline void SET_DDBNAN(void *p, size_t len) {
     std::fill(reinterpret_cast<double*>(p),
               reinterpret_cast<double*>(p)+len,
               ddb::DBL_NMIN);
 }
 
-inline bool Utils::IS_NPNAN(void *p) {
+inline bool IS_NPNAN(void *p) {
     return *reinterpret_cast<uint64_t*>(p) == 9221120237041090560LL;
 }
 
-ddb::DATA_TYPE Utils::DataTypeFromNumpyArray(py::array array) {
+ddb::DATA_TYPE DataTypeFromNumpyArray(py::array array) {
     py::dtype type = array.dtype();
-    if (type.equal(PyType::npbool_))
+    if (type.equal(pytype::npbool_))
         return ddb::DT_BOOL;
-    else if (type.equal(PyType::npint8_))
+    else if (type.equal(pytype::npint8_))
         return ddb::DT_CHAR;
-    else if (type.equal(PyType::npint16_))
+    else if (type.equal(pytype::npint16_))
         return ddb::DT_SHORT;
-    else if (type.equal(PyType::npint32_))
+    else if (type.equal(pytype::npint32_))
         return ddb::DT_INT;
-    else if (type.equal(PyType::npint64_))
+    else if (type.equal(pytype::npint64_))
         return ddb::DT_LONG;
-    else if (type.equal(PyType::npfloat32_))
+    else if (type.equal(pytype::npfloat32_))
         return ddb::DT_FLOAT;
-    else if (type.equal(PyType::npfloat64_))
+    else if (type.equal(pytype::npfloat64_))
         return ddb::DT_DOUBLE;
-    else if (type.equal(PyType::npdatetime64M_))
+    else if (type.equal(pytype::npdatetime64M_))
         return ddb::DT_MONTH;
-    else if (type.equal(PyType::npdatetime64D_))
+    else if (type.equal(pytype::npdatetime64D_))
         return ddb::DT_DATE;
-    else if (type.equal(PyType::npdatetime64m_))
+    else if (type.equal(pytype::npdatetime64m_))
         return ddb::DT_MINUTE;
-    else if (type.equal(PyType::npdatetime64s_))
+    else if (type.equal(pytype::npdatetime64s_))
         return ddb::DT_SECOND;
-    else if (type.equal(PyType::npdatetime64s_))
+    else if (type.equal(pytype::npdatetime64s_))
         return ddb::DT_DATETIME;
-    else if (type.equal(PyType::npdatetime64ms_))
+    else if (type.equal(pytype::npdatetime64ms_))
         return ddb::DT_TIMESTAMP;
-    else if (type.equal(PyType::npdatetime64ms_))
+    else if (type.equal(pytype::npdatetime64ms_))
         return ddb::DT_TIME;
-    else if (type.equal(PyType::npdatetime64ns_))
+    else if (type.equal(pytype::npdatetime64ns_))
         return ddb::DT_NANOTIMESTAMP;
-    else if (type.equal(PyType::npdatetime64_))  // np.array of null datetime64
+    else if (type.equal(pytype::npdatetime64_))  // np.array of null datetime64
         return ddb::DT_NANOTIMESTAMP;
-    else if (type.equal(PyType::npobject_))
+    else if (type.equal(pytype::npobject_))
         return ddb::DT_ANY;
     else
         return ddb::DT_ANY;
 }
 
 
-py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::VectorSP)) {
+py::object toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::VectorSP)) {
     if (obj.isNull() || obj->isNothing() || obj->isNull()) {
         return py::none();
     }
@@ -248,7 +255,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
                     for (size_t i = 0; i < size; ++i) {
                         if (UNLIKELY(ddbVec->getBool(i) == INT8_MIN)) {
                             Py_DECREF(p[i]);
-                            p[i] = PyModule::numpy_.attr("nan").ptr();
+                            p[i] = pymodule::numpy_.attr("nan").ptr();
                         }
                     }
                 }
@@ -263,7 +270,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
                     double *p = reinterpret_cast<double *>(pyVec.mutable_data());
                     for (size_t i = 0; i < size; ++i) {
                         if (UNLIKELY(ddbVec->getChar(i) == INT8_MIN)) {
-                            Utils::SET_NPNAN(p+i, 1);
+                            utils::SET_NPNAN(p+i, 1);
                         }
                     }
                 }
@@ -278,7 +285,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
                     double *p = reinterpret_cast<double *>(pyVec.mutable_data());
                     for (size_t i = 0; i < size; ++i) {
                         if (UNLIKELY(ddbVec->getShort(i) == INT16_MIN)) {
-                            Utils::SET_NPNAN(p+i, 1);
+                            utils::SET_NPNAN(p+i, 1);
                         }
                     }
                 }
@@ -293,7 +300,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
                     double *p = reinterpret_cast<double*>(pyVec.mutable_data());
                     for (size_t i = 0; i < size; ++i) {
                         if (UNLIKELY(ddbVec->getInt(i) == INT32_MIN)) {
-                            Utils::SET_NPNAN(p+i, 1);
+                            utils::SET_NPNAN(p+i, 1);
                         }
                     }
                 }
@@ -308,7 +315,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
                     double *p = reinterpret_cast<double*>(pyVec.mutable_data());
                     for (size_t i = 0; i < size; ++i) {
                         if (UNLIKELY(ddbVec->getLong(i) == INT64_MIN)) {
-                            Utils::SET_NPNAN(p+i, 1);
+                            utils::SET_NPNAN(p+i, 1);
                         }
                     }
                 }
@@ -384,7 +391,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
                     auto p = reinterpret_cast<double*>(pyVec.mutable_data());
                     for (size_t i = 0; i < size; ++i) {
                         if (UNLIKELY(ddbVec->getFloat(i) == ddb::FLT_NMIN)) {
-                            Utils::SET_NPNAN(p+i, 1);
+                            utils::SET_NPNAN(p+i, 1);
                         }
                     }
                 }
@@ -398,7 +405,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
                     auto p = reinterpret_cast<double*>(pyVec.mutable_data());
                     for (size_t i = 0; i < size; ++i) {
                         if (UNLIKELY(ddbVec->getDouble(i) == ddb::DBL_NMIN)) {
-                            Utils::SET_NPNAN(p+i, 1);
+                            utils::SET_NPNAN(p+i, 1);
                         }
                     }
                 }
@@ -427,7 +434,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
             }
             default:
             {
-                throw std::runtime_error("type error in Vector: " + Utils::DataTypeToString(type));
+                throw std::runtime_error("type error in Vector: " + utils::DataTypeToString(type));
             };
         }
     } else if (form == ddb::DF_TABLE) {
@@ -441,7 +448,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
             columns[ddbTbl->getColumnName(i).data()] = toPython(col);
             assert(py::isinstance(columns[ddbTbl->getColumnName(i).data()], py::array().get_type()));
         }
-        py::object dataframe = PyModule::pandas_.attr("DataFrame")(columns);
+        py::object dataframe = pymodule::pandas_.attr("DataFrame")(columns);
         return dataframe;
     } else if (form == ddb::DF_SCALAR) {
         switch (type) {
@@ -455,23 +462,23 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
             case ddb::DT_LONG:
                 return py::int_(obj->getLong());
             case ddb::DT_DATE:
-                return PyType::datetime64_(obj->getLong(), "D");
+                return pytype::datetime64_(obj->getLong(), "D");
             case ddb::DT_MONTH:
-                return PyType::datetime64_(obj->getLong(), "M");
+                return pytype::datetime64_(obj->getLong(), "M");
             case ddb::DT_TIME:
-                return PyType::datetime64_(obj->getLong(), "ms");
+                return pytype::datetime64_(obj->getLong(), "ms");
             case ddb::DT_MINUTE:
-                return PyType::datetime64_(obj->getLong(), "m");
+                return pytype::datetime64_(obj->getLong(), "m");
             case ddb::DT_SECOND:
-                return PyType::datetime64_(obj->getLong(), "s");
+                return pytype::datetime64_(obj->getLong(), "s");
             case ddb::DT_DATETIME:
-                return PyType::datetime64_(obj->getLong(), "s");
+                return pytype::datetime64_(obj->getLong(), "s");
             case ddb::DT_TIMESTAMP:
-                return PyType::datetime64_(obj->getLong(), "ms");
+                return pytype::datetime64_(obj->getLong(), "ms");
             case ddb::DT_NANOTIME:
-                return PyType::datetime64_(obj->getLong(), "ns");
+                return pytype::datetime64_(obj->getLong(), "ns");
             case ddb::DT_NANOTIMESTAMP:
-                return PyType::datetime64_(obj->getLong(), "ns");
+                return pytype::datetime64_(obj->getLong(), "ns");
             case ddb::DT_FLOAT:
             case ddb::DT_DOUBLE:
                 return py::float_(obj->getDouble());
@@ -479,7 +486,7 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
             case ddb::DT_STRING:
                 return py::str(obj->getString());
             default:
-                throw std::runtime_error("type error in Scalar: " + Utils::DataTypeToString(type));
+                throw std::runtime_error("type error in Scalar: " + utils::DataTypeToString(type));
         }
     } else if (form == ddb::DF_DICTIONARY) {
         ddb::DictionarySP ddbDict = obj;
@@ -534,13 +541,13 @@ py::object Utils::toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)
         }
         return pySet;
     } else {
-        throw std::runtime_error("form error: " + Utils::DataFormToString(form));
+        throw std::runtime_error("form error: " + utils::DataFormToString(form));
     }
 }
 
-ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
-    if (py::isinstance(obj, PyType::nparray_)) {
-        ddb::DATA_TYPE type = Utils::DataTypeFromNumpyArray(obj);
+ddb::ConstantSP toDolphinDB(py::object obj) {
+    if (py::isinstance(obj, pytype::nparray_)) {
+        ddb::DATA_TYPE type = utils::DataTypeFromNumpyArray(obj);
         py::array pyVec = obj;
         if (UNLIKELY(pyVec.ndim() > 2)) {
             throw std::runtime_error("numpy.ndarray with dimension > 2 is not supported");
@@ -629,7 +636,7 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
                 {
                     // special handle for np.nan value as type(np.nan)=float
                     ddbVec->appendDouble(reinterpret_cast<double*>(pyVec.mutable_data()), size);
-                    if (PyFunction::isnan_(PyFunction::sum_(pyVec)).cast<bool>()) {
+                    if (pyfunction::isnan_(pyfunction::sum_(pyVec)).cast<bool>()) {
                         auto p = reinterpret_cast<double*>(pyVec.mutable_data());
                         for (size_t i = 0; i < size; ++i) {
                             if (UNLIKELY(*reinterpret_cast<long long*>(p+i) == 9221120237041090560LL)) {
@@ -668,7 +675,7 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
                 }
                 default:
                 {
-                    throw std::runtime_error("type error in numpy: " + Utils::DataTypeToString(type));
+                    throw std::runtime_error("type error in numpy: " + utils::DataTypeToString(type));
                 }
             }
         } else {
@@ -686,7 +693,7 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
             }
             return ddbMat;
         }
-    } else if (py::isinstance(obj, PyType::pddataframe_)) {
+    } else if (py::isinstance(obj, pytype::pddataframe_)) {
         py::object dataframe = obj;
         py::object pyLabel = dataframe.attr("columns");
         size_t columnSize = pyLabel.attr("size").cast<size_t>();
@@ -702,27 +709,27 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
         }
         ddb::TableSP ddbTbl = ddb::Util::createTable(columnNames, columns);
         return ddbTbl;
-    } else if (py::isinstance(obj, PyType::pynone_)) {
+    } else if (py::isinstance(obj, pytype::pynone_)) {
         return ddb::Util::createNullConstant(ddb::DT_DOUBLE);
-    } else if (py::isinstance(obj, PyType::pybool_)) {
+    } else if (py::isinstance(obj, pytype::pybool_)) {
         auto result = obj.cast<bool>();
         return ddb::Util::createBool(result);
-    } else if (py::isinstance(obj, PyType::pyint_)) {
+    } else if (py::isinstance(obj, pytype::pyint_)) {
         auto result = obj.cast<long long>();
         return ddb::Util::createLong(result);
-    } else if (py::isinstance(obj, PyType::pyfloat_)) {
+    } else if (py::isinstance(obj, pytype::pyfloat_)) {
         auto result = obj.cast<double>();
         if (*(long long *)&result == 9221120237041090560LL) {
             result = ddb::DBL_NMIN;
         }
         return ddb::Util::createDouble(result);
-    } else if (py::isinstance(obj, PyType::pystr_)) {
+    } else if (py::isinstance(obj, pytype::pystr_)) {
         auto result = obj.cast<std::string>();
         return ddb::Util::createString(result);
-    } else if (py::isinstance(obj, PyType::pybytes_)) {
+    } else if (py::isinstance(obj, pytype::pybytes_)) {
         auto result = obj.cast<std::string>();
         return ddb::Util::createString(result);
-    } else if (py::isinstance(obj, PyType::pyset_)) {
+    } else if (py::isinstance(obj, pytype::pyset_)) {
         py::set pySet = obj;
         size_t size = pySet.size();
         vector<ddb::ConstantSP> _ddbSet;
@@ -755,7 +762,7 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
             ddbSet->append(_ddbSet[i]);
         }
         return ddbSet;
-    } else if (py::isinstance(obj, PyType::pytuple_)) {
+    } else if (py::isinstance(obj, pytype::pytuple_)) {
         py::tuple tuple = obj;
         size_t size = tuple.size();
         vector<ddb::ConstantSP> _ddbVec;
@@ -788,7 +795,7 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
             ddbVec->append(_ddbVec[i]);
         }
         return ddbVec;
-    } else if (py::isinstance(obj, PyType::pylist_)) {
+    } else if (py::isinstance(obj, pytype::pylist_)) {
         py::list list = obj;
         size_t size = list.size();
         vector<ddb::ConstantSP> _ddbVec;
@@ -821,7 +828,7 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
             ddbVec->append(_ddbVec[i]);
         }
         return ddbVec;
-    } else if (py::isinstance(obj, PyType::pydict_)) {
+    } else if (py::isinstance(obj, pytype::pydict_)) {
         py::dict pyDict = obj;
         size_t size = pyDict.size();
         vector<ddb::ConstantSP> _ddbKeyVec;
@@ -876,18 +883,18 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
         ddb::DictionarySP ddbDict = ddb::Util::createDictionary(keyType, valType);
         ddbDict->set(ddbKeyVec, ddbValVec);
         return ddbDict;
-    } else if (py::isinstance(obj, PyType::datetime64_)) {
-        if (py::getattr(obj, "dtype").equal(PyType::npdatetime64M_)) {
+    } else if (py::isinstance(obj, pytype::datetime64_)) {
+        if (py::getattr(obj, "dtype").equal(pytype::npdatetime64M_)) {
             return ddb::Util::createMonth(1970, 1 + obj.attr("astype")("int64").cast<long long>());
-        } else if (py::getattr(obj, "dtype").equal(PyType::npdatetime64D_)) {
+        } else if (py::getattr(obj, "dtype").equal(pytype::npdatetime64D_)) {
             return ddb::Util::createDate(obj.attr("astype")("int64").cast<long long>());
-        } else if (py::getattr(obj, "dtype").equal(PyType::npdatetime64m_)) {
+        } else if (py::getattr(obj, "dtype").equal(pytype::npdatetime64m_)) {
             return ddb::Util::createMinute(obj.attr("astype")("int64").cast<long long>());
-        } else if (py::getattr(obj, "dtype").equal(PyType::npdatetime64s_)) {
+        } else if (py::getattr(obj, "dtype").equal(pytype::npdatetime64s_)) {
             return ddb::Util::createSecond(obj.attr("astype")("int64").cast<long long>());
-        } else if (py::getattr(obj, "dtype").equal(PyType::npdatetime64ms_)) {
+        } else if (py::getattr(obj, "dtype").equal(pytype::npdatetime64ms_)) {
             return ddb::Util::createTimestamp(obj.attr("astype")("int64").cast<long long>());
-        } else if (py::getattr(obj, "dtype").equal(PyType::npdatetime64ns_)) {
+        } else if (py::getattr(obj, "dtype").equal(pytype::npdatetime64ns_)) {
             return ddb::Util::createNanoTimestamp(obj.attr("astype")("int64").cast<long long>());
         } else {
             throw std::runtime_error("unsupported numpy.datetime64 dtype");
@@ -895,6 +902,7 @@ ddb::ConstantSP Utils::toDolphinDB(py::object obj) {
     } else {
         throw std::runtime_error("unrecognized Python type: " + py::str(obj.get_type()).cast<std::string>());
     }
+}
 }
 
 }  // namespace pydolphindb
