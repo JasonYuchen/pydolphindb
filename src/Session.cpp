@@ -8,8 +8,19 @@
 #define UNLIKELY(x) (x)
 #endif
 
-namespace pydolphindb
-{
+namespace pydolphindb {
+
+Session::Session()
+    : host_()
+    , port_(-1)
+    , userId_()
+    , password_()
+    , encrypted_(true)
+    , dbConnection_()
+    , subscriber_(nullptr)
+    , listeningPort_(-1)
+    , topicThread_()
+    , nullValuePolicy_([](ddb::VectorSP){}) {}
 
 bool Session::connect(const std::string &host,
                       int port,
@@ -23,7 +34,7 @@ bool Session::connect(const std::string &host,
     try {
         isSuccess = dbConnection_.connect(host_, port_, userId_, password_);
     } catch (std::exception &ex) {
-        throw std::runtime_error(std::string("<Server Exception> in connect: ") + ex.what());
+        throw std::runtime_error(std::string("<Server Exception> connect: ") + ex.what());
     }
     return isSuccess;
 }
@@ -34,7 +45,7 @@ void Session::login(const std::string &userId,
     try {
         dbConnection_.login(userId, password, enableEncryption);
     } catch (std::exception &ex) {
-        throw std::runtime_error(std::string("<Server Exception> in login: ") + ex.what());
+        throw std::runtime_error(std::string("<Server Exception> login: ") + ex.what());
     }
 }
 
@@ -50,11 +61,11 @@ void Session::upload(py::dict namedObjects) {
     vector<std::string> names;
     vector<ddb::ConstantSP> objs;
     for (auto it = namedObjects.begin(); it != namedObjects.end(); ++it) {
-        if (!py::isinstance(it->first, PyType::pystr_) && !py::isinstance(it->first, PyType::pybytes_)) {
-            throw std::runtime_error("non-string key in upload dictionary is not allowed");
+        if (!py::isinstance(it->first, pytype::pystr_) && !py::isinstance(it->first, pytype::pybytes_)) {
+            throw std::runtime_error("<Python API Exception> upload: non-string key in upload dictionary is not allowed");
         }
         names.push_back(it->first.cast<std::string>());
-        objs.push_back(Utils::toDolphinDB(py::reinterpret_borrow<py::object>(it->second)));
+        objs.push_back(utils::toDolphinDB(py::reinterpret_borrow<py::object>(it->second)));
     }
     try {
         dbConnection_.upload(names, objs);
@@ -70,15 +81,15 @@ py::object Session::run(const string &script) {
     } catch (std::exception &ex) {
         throw std::runtime_error(std::string("<Server Exception> in run: ") + ex.what());
     }
-    py::object ret = Utils::toPython(result);
+    py::object ret = utils::toPython(result);
     return ret;
 }
 
 py::object Session::run(const string &funcName,
-                py::args args) {
+                        py::args args) {
     vector<ddb::ConstantSP> ddbArgs;
     for (auto it = args.begin(); it != args.end(); ++it) {
-        ddbArgs.push_back(Utils::toDolphinDB(py::reinterpret_borrow<py::object>(*it)));
+        ddbArgs.push_back(utils::toDolphinDB(py::reinterpret_borrow<py::object>(*it)));
     }
     ddb::ConstantSP result;
     try {
@@ -86,7 +97,7 @@ py::object Session::run(const string &funcName,
     } catch (std::exception &ex) {
         throw std::runtime_error(std::string("<Server Exception> in call: ") + ex.what());
     }
-    py::object ret = Utils::toPython(result);
+    py::object ret = utils::toPython(result);
     return ret;
 }
 
@@ -112,9 +123,10 @@ void Session::nullValueToNan() {
 
 void Session::enableStreaming(int listeningPort) {
     if (subscriber_.isNull()) {
+        listeningPort_ = listeningPort;
         subscriber_ = new ddb::ThreadedClient(listeningPort);
     } else {
-        throw std::runtime_error("streaming is already enabled");
+        throw std::runtime_error("<Python API Exception> enableStreaming: streaming is already enabled on port " + std::to_string(listeningPort_));
     }
 }
 
@@ -127,23 +139,23 @@ void Session::subscribe(const string &host,
                         bool resub,
                         py::array filter) {
     if (subscriber_.isNull()) {
-        throw std::runtime_error("streaming is not enabled");
+        throw std::runtime_error("<Python API Exception> subscribe: streaming is not enabled");
     }
     string topic = host + "/" + std::to_string(port) + "/" + tableName + "/" + actionName;
     if (topicThread_.find(topic) != topicThread_.end()) {
-        throw std::runtime_error("subscription " + topic + " already exists");
+        throw std::runtime_error("<Python API Exception> subscribe: subscription " + topic + " already exists");
     }
     ddb::MessageHandler ddbHandler = [handler, this](ddb::Message msg) {
         // handle GIL
         py::gil_scoped_acquire acquire;
         size_t size = msg->size();
         py::list pyMsg;
-        for(size_t i = 0; i < size; ++i) {
-            pyMsg.append(Utils::toPython(msg->get(i)));
+        for (size_t i = 0; i < size; ++i) {
+            pyMsg.append(utils::toPython(msg->get(i)));
         }
         handler(pyMsg);
     };
-    ddb::VectorSP ddbFilter = filter.size() ? Utils::toDolphinDB(filter) : nullptr;
+    ddb::VectorSP ddbFilter = filter.size() ? utils::toDolphinDB(filter) : nullptr;
     ddb::ThreadSP thread = subscriber_->subscribe(host, port, ddbHandler, tableName, actionName, offset, resub, ddbFilter);
     topicThread_[topic] = thread;
 }
@@ -153,11 +165,11 @@ void Session::unsubscribe(string host,
                           string tableName,
                           string actionName) {
     if (subscriber_.isNull()) {
-        throw std::runtime_error("streaming is not enabled");
+        throw std::runtime_error("<Python API Exception> unsubscribe: streaming is not enabled");
     }
     string topic = host + "/" + std::to_string(port) + "/" + tableName + "/" + actionName;
     if (topicThread_.find(topic) == topicThread_.end()) {
-        throw std::runtime_error("subscription " + topic + " not exists");
+        throw std::runtime_error("<Python API Exception> unsubscribe: subscription " + topic + " not exists");
     }
     subscriber_->unsubscribe(host, port, tableName, actionName);
     topicThread_.erase(topic);
@@ -177,7 +189,7 @@ Session::~Session() {
         try {
             unsubscribe(args[0], std::stoi(args[1]), args[2], args[3]);
         } catch (std::exception &ex) {
-            std::cout << "exception occurred in Session destructor: " << ex.what() << std::endl;
+            std::cout << "<Python API Exception> ~Session: " << ex.what() << std::endl;
         }
     }
     for (auto &it : topicThread_) {
