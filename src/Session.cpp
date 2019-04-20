@@ -26,6 +26,7 @@ bool Session::connect(const std::string &host,
                       int port,
                       const std::string &userId,
                       const std::string &password) {
+    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
     host_ = host;
     port_ = port;
     userId_ = userId;
@@ -42,6 +43,7 @@ bool Session::connect(const std::string &host,
 void Session::login(const std::string &userId,
                     const std::string &password,
                     bool enableEncryption) {
+    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
     try {
         dbConnection_.login(userId, password, enableEncryption);
     } catch (std::exception &ex) {
@@ -50,6 +52,7 @@ void Session::login(const std::string &userId,
 }
 
 void Session::close() {
+    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
     host_ = "";
     port_ = 0;
     userId_ = "";
@@ -122,6 +125,7 @@ void Session::nullValueToNan() {
 }
 
 void Session::enableStreaming(int listeningPort) {
+    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
     if (subscriber_.isNull()) {
         listeningPort_ = listeningPort;
         subscriber_ = new ddb::ThreadedClient(listeningPort);
@@ -138,6 +142,7 @@ void Session::subscribe(const string &host,
                         long long offset,
                         bool resub,
                         py::array filter) {
+    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
     if (subscriber_.isNull()) {
         throw std::runtime_error("<Python API Exception> subscribe: streaming is not enabled");
     }
@@ -164,6 +169,7 @@ void Session::unsubscribe(string host,
                           int port,
                           string tableName,
                           string actionName) {
+    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
     if (subscriber_.isNull()) {
         throw std::runtime_error("<Python API Exception> unsubscribe: streaming is not enabled");
     }
@@ -176,6 +182,7 @@ void Session::unsubscribe(string host,
 }
 
 py::list Session::getSubscriptionTopics() {
+    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
     py::list topics;
     for (auto &it : topicThread_) {
         topics.append(it.first);

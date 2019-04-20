@@ -48,7 +48,6 @@ class Session {
 
     void enableStreaming(int listeningPort);
 
-    // FIXME: not thread safe
     void subscribe(const string &host,
                    int port,
                    py::object handler,
@@ -58,18 +57,17 @@ class Session {
                    bool resub,
                    py::array filter);
 
-    // FIXME: not thread safe
     void unsubscribe(string host,
                      int port,
                      string tableName,
                      string actionName);
 
-    // FIXME: not thread safe
     py::list getSubscriptionTopics();
 
     ~Session();
 
  private:
+    ddb::Mutex mutex_;
     std::string host_;
     int port_;
     std::string userId_;
