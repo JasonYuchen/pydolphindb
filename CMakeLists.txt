@@ -10,6 +10,7 @@ add_definitions(-DLINUX
 set(CMAKE_CXX_STANDARD 14)
 set(PYBIND11_CPP_STANDARD -std=c++14)
 set(PYTHON_EXECUTABLE /usr/bin/python3)
+set(PYTHON_MODULE_EXTENSION .so)
 set(CMAKE_INSTALL_RPATH "$ORIGIN")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE) 
@@ -41,3 +42,9 @@ target_link_libraries(pydolphindb
 	uuid
 	crypto
 	pthread)
+
+install(
+	TARGETS pydolphindb
+	DESTINATION ${PROJECT_SOURCE_DIR}/PyDolphinDB
+	CONFIGURATIONS Release
+)
