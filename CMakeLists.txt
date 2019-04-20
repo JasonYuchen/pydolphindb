@@ -30,7 +30,9 @@ pybind11_add_module(pydolphindb
 	src/Utils.h
 	src/Utils.cpp
 	src/Session.h
-	src/Session.cpp)
+	src/Session.cpp
+	src/Streaming.h
+	src/Streaming.cpp)
 
 target_link_libraries(pydolphindb
 	PUBLIC

@@ -2,9 +2,11 @@
 #define PYDOLPHINDB_UTILS_H_
 
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 #include <string>
 
+#include <DolphinDB.h>
 #include <Types.h>
 
 namespace pydolphindb {

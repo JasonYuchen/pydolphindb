@@ -1,18 +1,21 @@
 #include <vector>
 
+#include "src/Utils.h"
 #include "src/Streaming.h"
+
+#include <Util.h>
 
 namespace pydolphindb {
 
 Streaming::Streaming()
-    : mutes_()
+    : mutex_()
     , subscriber_(nullptr)
     , listeningPort_(-1)
     , topicThread_() {}
 
 void Streaming::listen(int listeningPort) {
     std::lock_guard<std::mutex> guard(mutex_);
-    if (subscriber_.isNull()) {
+    if (subscriber_) {
         listeningPort_ = listeningPort;
         subscriber_ = std::make_unique<ddb::ThreadedClient>(ddb::ThreadedClient(listeningPort));
     } else {
@@ -29,7 +32,7 @@ void Streaming::subscribe(const std::string &host,
                           bool resub,
                           py::array filter) {
     std::lock_guard<std::mutex> guard(mutex_);
-    if (subscriber_.isNull()) {
+    if (subscriber_) {
         throw std::runtime_error("<Python API Exception> subscribe: streaming is not enabled");
     }
     std::string topic = host + "/" + std::to_string(port) + "/" + tableName + "/" + actionName;
@@ -56,7 +59,7 @@ void Streaming::unsubscribe(std::string host,
                             std::string tableName,
                             std::string actionName) {
     std::lock_guard<std::mutex> guard(mutex_);
-    if (subscriber_.isNull()) {
+    if (subscriber_) {
         throw std::runtime_error("<Python API Exception> unsubscribe: streaming is not enabled");
     }
     std::string topic = host + "/" + std::to_string(port) + "/" + tableName + "/" + actionName;
@@ -78,7 +81,7 @@ py::list Streaming::getSubscriptionTopics() {
 
 Streaming::~Streaming() {
     for (auto &it : topicThread_) {
-        std::vector<std::string> args = ddb::Util::split(it.first, '/');
+        auto args = ddb::Util::split(it.first, '/');
         try {
             unsubscribe(args[0], std::stoi(args[1]), args[2], args[3]);
         } catch (std::exception &ex) {

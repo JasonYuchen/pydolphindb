@@ -22,6 +22,8 @@ class Session {
     Session();
     Session(const Session &) = delete;
     Session &operator=(const Session &) = delete;
+    Session(Session &&) = delete;
+    Session &operator=(Session &&) = delete;
 
     bool connect(const std::string &host,
                  int port,

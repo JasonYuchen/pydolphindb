@@ -22,6 +22,8 @@ class Streaming {
     Streaming();
     Streaming(const Streaming &) = delete;
     Streaming &operator=(const Streaming &) = delete;
+    Streaming(Streaming &&) = delete;
+    Streaming &operator=(Streaming &&) = delete;
 
     void listen(int listeningPort);
 
