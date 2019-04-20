@@ -5,13 +5,12 @@
 #include <pybind11/numpy.h>
 
 #include <string>
-#include <unordered_map>
+#include <mutex>
 
 #include <DolphinDB.h>
 #include <Util.h>
-#include <Streaming.h>
 
-#include "Utils.h"
+#include "src/Utils.h"
 
 namespace pydolphindb {
 
@@ -37,47 +36,26 @@ class Session {
 
     void upload(py::dict namedObjects);
 
-    py::object run(const string &script);
+    py::object run(const std::string &script);
 
-    py::object run(const string &funcName,
+    py::object run(const std::string &funcName,
                    py::args args);
 
     void nullValueToZero();
 
     void nullValueToNan();
 
-    void enableStreaming(int listeningPort);
-
-    void subscribe(const string &host,
-                   int port,
-                   py::object handler,
-                   const string &tableName,
-                   const string &actionName,
-                   long long offset,
-                   bool resub,
-                   py::array filter);
-
-    void unsubscribe(string host,
-                     int port,
-                     string tableName,
-                     string actionName);
-
-    py::list getSubscriptionTopics();
-
     ~Session();
 
  private:
-    ddb::Mutex mutex_;
+    std::mutex mutex_;
     std::string host_;
     int port_;
     std::string userId_;
     std::string password_;
     bool encrypted_;
     ddb::DBConnection dbConnection_;
-    ddb::SmartPointer<ddb::ThreadedClient> subscriber_;
-    int listeningPort_;
-    std::unordered_map<string, ddb::ThreadSP> topicThread_;
-    void (*nullValuePolicy_)(ddb::VectorSP);
+    std::function<void(ddb::VectorSP)> nullValuePolicy_;
 };
 
 }  // namespace pydolphindb

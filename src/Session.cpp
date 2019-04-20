@@ -1,4 +1,6 @@
-#include "Session.h"
+#include <vector>
+
+#include "src/Session.h"
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define LIKELY(x) (__builtin_expect((x), 1))
@@ -11,22 +13,20 @@
 namespace pydolphindb {
 
 Session::Session()
-    : host_()
+    : mutex_()
+    , host_()
     , port_(-1)
     , userId_()
     , password_()
     , encrypted_(true)
     , dbConnection_()
-    , subscriber_(nullptr)
-    , listeningPort_(-1)
-    , topicThread_()
     , nullValuePolicy_([](ddb::VectorSP){}) {}
 
 bool Session::connect(const std::string &host,
                       int port,
                       const std::string &userId,
                       const std::string &password) {
-    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     host_ = host;
     port_ = port;
     userId_ = userId;
@@ -43,7 +43,7 @@ bool Session::connect(const std::string &host,
 void Session::login(const std::string &userId,
                     const std::string &password,
                     bool enableEncryption) {
-    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     try {
         dbConnection_.login(userId, password, enableEncryption);
     } catch (std::exception &ex) {
@@ -52,7 +52,7 @@ void Session::login(const std::string &userId,
 }
 
 void Session::close() {
-    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     host_ = "";
     port_ = 0;
     userId_ = "";
@@ -77,7 +77,7 @@ void Session::upload(py::dict namedObjects) {
     }
 }
 
-py::object Session::run(const string &script) {
+py::object Session::run(const std::string &script) {
     ddb::ConstantSP result;
     try {
         result = dbConnection_.run(script);
@@ -88,7 +88,7 @@ py::object Session::run(const string &script) {
     return ret;
 }
 
-py::object Session::run(const string &funcName,
+py::object Session::run(const std::string &funcName,
                         py::args args) {
     vector<ddb::ConstantSP> ddbArgs;
     for (auto it = args.begin(); it != args.end(); ++it) {
@@ -105,7 +105,7 @@ py::object Session::run(const string &funcName,
 }
 
 void Session::nullValueToZero() {
-    nullValuePolicy_ = [](ddb::VectorSP vec) {
+    nullValuePolicy_ = [](auto vec) {
         if (!vec->hasNull() ||
             vec->getCategory() == ddb::TEMPORAL ||
             vec->getType() == ddb::DT_STRING ||
@@ -121,88 +121,10 @@ void Session::nullValueToZero() {
 }
 
 void Session::nullValueToNan() {
-    nullValuePolicy_ = [](ddb::VectorSP) {};
+    nullValuePolicy_ = [](auto) {};
 }
 
-void Session::enableStreaming(int listeningPort) {
-    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
-    if (subscriber_.isNull()) {
-        listeningPort_ = listeningPort;
-        subscriber_ = new ddb::ThreadedClient(listeningPort);
-    } else {
-        throw std::runtime_error("<Python API Exception> enableStreaming: streaming is already enabled on port " + std::to_string(listeningPort_));
-    }
-}
-
-void Session::subscribe(const string &host,
-                        int port,
-                        py::object handler,
-                        const string &tableName,
-                        const string &actionName,
-                        long long offset,
-                        bool resub,
-                        py::array filter) {
-    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
-    if (subscriber_.isNull()) {
-        throw std::runtime_error("<Python API Exception> subscribe: streaming is not enabled");
-    }
-    string topic = host + "/" + std::to_string(port) + "/" + tableName + "/" + actionName;
-    if (topicThread_.find(topic) != topicThread_.end()) {
-        throw std::runtime_error("<Python API Exception> subscribe: subscription " + topic + " already exists");
-    }
-    ddb::MessageHandler ddbHandler = [handler, this](ddb::Message msg) {
-        // handle GIL
-        py::gil_scoped_acquire acquire;
-        size_t size = msg->size();
-        py::list pyMsg;
-        for (size_t i = 0; i < size; ++i) {
-            pyMsg.append(utils::toPython(msg->get(i)));
-        }
-        handler(pyMsg);
-    };
-    ddb::VectorSP ddbFilter = filter.size() ? utils::toDolphinDB(filter) : nullptr;
-    ddb::ThreadSP thread = subscriber_->subscribe(host, port, ddbHandler, tableName, actionName, offset, resub, ddbFilter);
-    topicThread_[topic] = thread;
-}
-
-void Session::unsubscribe(string host,
-                          int port,
-                          string tableName,
-                          string actionName) {
-    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
-    if (subscriber_.isNull()) {
-        throw std::runtime_error("<Python API Exception> unsubscribe: streaming is not enabled");
-    }
-    string topic = host + "/" + std::to_string(port) + "/" + tableName + "/" + actionName;
-    if (topicThread_.find(topic) == topicThread_.end()) {
-        throw std::runtime_error("<Python API Exception> unsubscribe: subscription " + topic + " not exists");
-    }
-    subscriber_->unsubscribe(host, port, tableName, actionName);
-    topicThread_.erase(topic);
-}
-
-py::list Session::getSubscriptionTopics() {
-    ddb::LockGuard<ddb::Mutex> guard(&mutex_);
-    py::list topics;
-    for (auto &it : topicThread_) {
-        topics.append(it.first);
-    }
-    return topics;
-}
-
-Session::~Session() {
-    for (auto &it : topicThread_) {
-        vector<std::string> args = ddb::Util::split(it.first, '/');
-        try {
-            unsubscribe(args[0], std::stoi(args[1]), args[2], args[3]);
-        } catch (std::exception &ex) {
-            std::cout << "<Python API Exception> ~Session: " << ex.what() << std::endl;
-        }
-    }
-    for (auto &it : topicThread_) {
-        it.second->join();
-    }
-}
+Session::~Session() {}
 
 }  // namespace pydolphindb
 
