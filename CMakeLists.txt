@@ -45,6 +45,6 @@ target_link_libraries(pydolphindb
 
 install(
 	TARGETS pydolphindb
-	DESTINATION ${PROJECT_SOURCE_DIR}/PyDolphinDB
+	DESTINATION ${PROJECT_SOURCE_DIR}/pydolphindb
 	CONFIGURATIONS Release
 )
