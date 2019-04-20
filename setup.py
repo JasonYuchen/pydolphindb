@@ -2,7 +2,7 @@ import setuptools
 from setuptools.dist import Distribution
 
 class BinaryDistribution(Distribution):
-    def has_ext_modules(foo):
+    def has_ext_modules(self, foo):
         return True
 
 with open("README.md", "r") as f:
