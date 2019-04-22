@@ -53,6 +53,30 @@ DataFrame       TABLE
 
 **pandas does not support datetime64 otherthan datetime64[ns]**
 
+## Build
+
+1.prerequisite
+
+- CMake
+- Python
+- OpenSSL 1.0.2
+
+2.start build in the `pydolphindb` folder
+
+```
+cmake . -DPYTHON_EXECUTABLE=/path/to/Python -DOPENSSL_LIB_PATH=/path/to/openssl-1.0.2/lib -DCMAKE_BUILD_TYPE=Release
+
+make
+
+make install
+```
+
+3.use `pydolphindb/pydolphindb` as a Python module folder
+
+**installing pydolphindb via `setup.py` will be supported later**
+
+### 
+
 ## Tested compilers
 
 1.GCC 4.8.5 or newer
