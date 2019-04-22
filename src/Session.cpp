@@ -105,7 +105,7 @@ py::object Session::run(const std::string &funcName,
 }
 
 void Session::nullValueToZero() {
-    nullValuePolicy_ = [](auto vec) {
+    nullValuePolicy_ = [](ddb::VectorSP vec) {
         if (!vec->hasNull() ||
             vec->getCategory() == ddb::TEMPORAL ||
             vec->getType() == ddb::DT_STRING ||
@@ -121,7 +121,7 @@ void Session::nullValueToZero() {
 }
 
 void Session::nullValueToNan() {
-    nullValuePolicy_ = [](auto) {};
+    nullValuePolicy_ = [](ddb::VectorSP) {};
 }
 
 Session::~Session() {}

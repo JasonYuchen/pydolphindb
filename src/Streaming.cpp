@@ -17,7 +17,7 @@ void Streaming::listen(int listeningPort) {
     std::lock_guard<std::mutex> guard(mutex_);
     if (subscriber_) {
         listeningPort_ = listeningPort;
-        subscriber_ = std::make_unique<ddb::ThreadedClient>(ddb::ThreadedClient(listeningPort));
+        subscriber_.reset(new ddb::ThreadedClient(listeningPort));
     } else {
         throw std::runtime_error("<Python API Exception> enableStreaming: streaming is already enabled on port " + std::to_string(listeningPort_));
     }
