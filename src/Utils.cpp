@@ -462,15 +462,10 @@ py::object toPython(ddb::ConstantSP obj, void (*nullValuePolicyForVector)(ddb::V
     } else if (form == ddb::DF_TABLE) {
         ddb::TableSP ddbTbl = obj;
         size_t columnSize = ddbTbl->columns();
-        py::dict columns;
-        py::dict columnTypes;
-        vector<ddb::ConstantSP> ddbColumns;
+        py::object dataframe = pymodule::pandas_.attr("DataFrame")();
         for (size_t i = 0; i < columnSize; ++i) {
-            ddb::ConstantSP col = obj->getColumn(i);
-            columns[ddbTbl->getColumnName(i).data()] = toPython(col);
-            assert(py::isinstance(columns[ddbTbl->getColumnName(i).data()], py::array().get_type()));
+            dataframe[ddbTbl->getColumnName(i).data()] = toPython(obj->getColumn(i));
         }
-        py::object dataframe = pymodule::pandas_.attr("DataFrame")(columns);
         return dataframe;
     } else if (form == ddb::DF_SCALAR) {
         switch (type) {
