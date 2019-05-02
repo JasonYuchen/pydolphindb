@@ -11,6 +11,12 @@ A C++ boosted DolphinDB Python3 API based on [Pybind11](https://github.com/pybin
 - Upload supported Python objects
 - Streaming
 
+A detailed tutorial (`pydolphindb/doc/tutorial.md`, still in progress) about:
+
+- Develop a Python C++ extension via pybind11
+- Use DolphinDB C++ API to build the C++ extension
+- Package your Python module and upload it to PyPi
+
 ## Fast data conversion
 
 pydolphindb can map the [DolphinDB data structures](https://www.dolphindb.com/help/) to Python builtins
