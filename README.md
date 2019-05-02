@@ -1,6 +1,6 @@
 # PyDolphinDB
 
-A C++ boosted DolphinDB Python3 API based on [Pybind11](https://github.com/pybind/pybind11) and [DolphinDB Cpp API](https://github.com/dolphindb/api-cplusplus)
+A C++ boosted DolphinDB Python3 API based on [Pybind11](https://github.com/pybind/pybind11), [DolphinDB Cpp API](https://github.com/dolphindb/api-cplusplus) and [DolphinDB Python3 API](https://github.com/dolphindb/api-python3)
 
 ## Core features
 
@@ -81,8 +81,6 @@ make install
 
 **installing pydolphindb via `setup.py` will be supported later**
 
-### 
-
 ## Tested compilers
 
 1.GCC 4.8.5 or newer
@@ -95,6 +93,18 @@ Python 3.4~3.7
 
 Python 2.7 with minor modifications
 
+## Quick start
+
+run the following script in Python3 after installation
+
+```
+import pydolphindb as pydb
+s = pydb.session()
+isSuccess = s.connect(DOLPHINDB_IP, DOLPHINDB_PORT)
+if isSuccess:
+    s.run("1..100")
+```
+
 ## About
 
 This project was created by JasonYuchen(jasonyuchen@foxmail.com).
@@ -106,3 +116,5 @@ pydolphindb is provided under MIT license that can be found in the `LICENSE` fil
 [pybind11 license](https://github.com/pybind/pybind11/blob/master/LICENSE)
 
 [DolphinDB Cpp API license](https://github.com/dolphindb/api-cplusplus/blob/master/LICENSE)
+
+[DolphinDB Python3 API license](https://github.com/dolphindb/api-python3/blob/master/LICENSE)
