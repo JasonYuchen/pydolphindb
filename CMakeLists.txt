@@ -4,8 +4,8 @@ project(pydolphindb)
 
 add_definitions(-DLINUX 
                 -DLOGGING_LEVEL_1 
-				-D_GLIBCXX_USE_CXX11_ABI=0 
-				-DVERSION_INFO="1.0.0")
+		-D_GLIBCXX_USE_CXX11_ABI=0 
+		-DVERSION_INFO="1.0.0")
 
 set(CMAKE_CXX_STANDARD 11)
 set(PYBIND11_CPP_STANDARD -std=c++11)
