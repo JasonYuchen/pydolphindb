@@ -1,6 +1,6 @@
 // MIT License
 
-// Copyright (c) [2019] [jasonyuchen]
+// Copyright (c) 2019 jasonyuchen
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,44 +34,38 @@
 #include <DolphinDB.h>
 #include <Streaming.h>
 
-namespace pydolphindb {
+namespace pydolphindb
+{
 
 namespace py = pybind11;
 namespace ddb = dolphindb;
 
 class Streaming {
  public:
-    Streaming();
-    Streaming(const Streaming &) = delete;
-    Streaming &operator=(const Streaming &) = delete;
-    Streaming(Streaming &&) = delete;
-    Streaming &operator=(Streaming &&) = delete;
-
-    void listen(int listeningPort);
-
-    void subscribe(const std::string &host,
-                   int port,
-                   py::object handler,
-                   const std::string &tableName,
-                   const std::string &actionName,
-                   long long offset,
-                   bool resub,
-                   py::array filter);
-
-    void unsubscribe(std::string host,
-                     int port,
-                     std::string tableName,
-                     std::string actionName);
-
-    py::list getSubscriptionTopics();
-
-    ~Streaming();
-
+  Streaming();
+  ~Streaming();
+  void listen(int listeningPort);
+  void subscribe(
+    const std::string &host,
+    int port,
+    py::object handler,
+    const std::string &tableName,
+    const std::string &actionName,
+    long long offset,
+    bool resub,
+    py::array filter);
+  void unsubscribe(
+    std::string host,
+    int port,
+    std::string tableName,
+    std::string actionName);
+  py::list getSubscriptionTopics();
  private:
-    std::mutex mutex_;
-    std::unique_ptr<ddb::ThreadedClient> subscriber_;
-    int listeningPort_;
-    std::unordered_map<std::string, ddb::ThreadSP> topicThread_;
+  DISALLOW_COPY_MOVE_AND_ASSIGN(Streaming);
+  std::mutex mutex_;
+  std::unique_ptr<ddb::ThreadedClient> subscriber_;
+  int listeningPort_;
+  std::unordered_map<std::string, ddb::ThreadSP> topicThread_;
 };
 
 }  // namespace pydolphindb

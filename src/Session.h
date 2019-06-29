@@ -1,6 +1,6 @@
 // MIT License
 
-// Copyright (c) [2019] [jasonyuchen]
+// Copyright (c) 2019 jasonyuchen
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,52 +34,41 @@
 
 #include "Utils.h"
 
-namespace pydolphindb {
+namespace pydolphindb
+{
 
 namespace py = pybind11;
 namespace ddb = dolphindb;
 
 class Session {
  public:
-    Session();
-    Session(const Session &) = delete;
-    Session &operator=(const Session &) = delete;
-    Session(Session &&) = delete;
-    Session &operator=(Session &&) = delete;
-
-    bool connect(const std::string &host,
-                 int port,
-                 const std::string &userId,
-                 const std::string &password);
-
-    void login(const std::string &userId,
-               const std::string &password,
-               bool enableEncryption);
-
-    void close();
-
-    void upload(py::dict namedObjects);
-
-    py::object run(const std::string &script);
-
-    py::object run(const std::string &funcName,
-                   py::args args);
-
-    void nullValueToZero();
-
-    void nullValueToNan();
-
-    ~Session();
-
+  Session();
+  ~Session() = default;
+  bool connect(
+    const std::string &host,
+    int port,
+    const std::string &userId,
+    const std::string &password);
+  void login(
+    const std::string &userId,
+    const std::string &password,
+    bool enableEncryption);
+  void close();
+  void upload(py::dict namedObjects);
+  py::object run(const std::string &script);
+  py::object run(const std::string &funcName, py::args args);
+  void nullValueToZero();
+  void nullValueToNan();
  private:
-    std::mutex mutex_;
-    std::string host_;
-    int port_;
-    std::string userId_;
-    std::string password_;
-    bool encrypted_;
-    ddb::DBConnection dbConnection_;
-    std::function<void(ddb::VectorSP)> nullValuePolicy_;
+  DISALLOW_COPY_MOVE_AND_ASSIGN(Session);
+  std::mutex mutex_;
+  std::string host_;
+  int port_;
+  std::string userId_;
+  std::string password_;
+  bool encrypted_;
+  ddb::DBConnection dbConnection_;
+  std::function<void(ddb::VectorSP)> nullValuePolicy_;
 };
 
 }  // namespace pydolphindb
