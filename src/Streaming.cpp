@@ -22,8 +22,8 @@
 
 #include <vector>
 
-#include "src/Utils.h"
-#include "src/Streaming.h"
+#include "Utils.h"
+#include "Streaming.h"
 
 #include <Util.h>
 

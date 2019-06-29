@@ -22,8 +22,8 @@
 
 #include <pybind11/pybind11.h>
 
-#include "src/Session.h"
-#include "src/Streaming.h"
+#include "Session.h"
+#include "Streaming.h"
 
 namespace py = pybind11;
 namespace ddb = dolphindb;
@@ -31,7 +31,7 @@ namespace ddb = dolphindb;
 using Session = pydolphindb::Session;
 using Streaming = pydolphindb::Streaming;
 
-PYBIND11_MODULE(pydolphindb, m) {
+PYBIND11_MODULE(pydolphindbimpl, m) {
     m.doc() = R"pbdoc(pydolphindb: yet another C++ implemented DolphinDB Python)pbdoc";
 
     py::class_<Session>(m, "session")

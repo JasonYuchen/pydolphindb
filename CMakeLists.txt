@@ -1,50 +1,58 @@
 cmake_minimum_required(VERSION 3.00)
 
-project(pydolphindb)
+project(pydolphindbimpl)
 
-add_definitions(-DLINUX 
-                -DLOGGING_LEVEL_1 
-		-D_GLIBCXX_USE_CXX11_ABI=0 
-		-DVERSION_INFO="1.0.0")
+if(WIN32)
+    add_definitions(-DWINDOWS)
+elseif(UNIX)
+    add_definitions(-DLINUX -D_GLIBCXX_USE_CXX11_ABI=0)
+endif()
+
+add_definitions(-DLOGGING_LEVEL_1)
 
 set(CMAKE_CXX_STANDARD 11)
 set(PYBIND11_CPP_STANDARD -std=c++11)
-set(PYTHON_EXECUTABLE /usr/bin/python3)
-set(PYTHON_MODULE_EXTENSION .so)
 set(CMAKE_INSTALL_RPATH "$ORIGIN")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE) 
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-include_directories(api-cplusplus/include
-                    ${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/api-cplusplus/include
+    ${PROJECT_SOURCE_DIR}/src)
 
-link_directories(api-cplusplus/bin/linux_x64 
-                 ${OPENSSL_LIB_PATH})
+if(WIN32)
+    link_directories(${PROJECT_SOURCE_DIR}/api-cplusplus/bin/mingw_x64 
+        ${OPENSSL_LIB_PATH})
+elseif(UNIX)
+    link_directories(${PROJECT_SOURCE_DIR}/api-cplusplus/bin/linux_x64 
+        ${OPENSSL_LIB_PATH})
+endif()
 
-link_libraries(libDolphinDBAPI.so 
-               ssl)
+
+link_libraries(DolphinDBAPI
+    ssl)
 
 add_subdirectory(pybind11)
 
-pybind11_add_module(pydolphindb 
-	src/module.cpp
-	src/Utils.h
-	src/Utils.cpp
-	src/Session.h
-	src/Session.cpp
-	src/Streaming.h
-	src/Streaming.cpp)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src PYDOLPHINDB_SOURCE)
 
-target_link_libraries(pydolphindb
-	PUBLIC
-	DolphinDBAPI
-	ssl
-	uuid
-	crypto
-	pthread)
+pybind11_add_module(pydolphindbimpl 
+    ${PYDOLPHINDB_SOURCE})
 
-install(
-	TARGETS pydolphindb
-	DESTINATION ${PROJECT_SOURCE_DIR}/pydolphindb
-	CONFIGURATIONS Release
-)
+target_link_libraries(pydolphindbimpl
+    PUBLIC
+    DolphinDBAPI
+    ssl
+    uuid
+    crypto
+    pthread)
+
+install(TARGETS pydolphindbimpl
+    DESTINATION ${PROJECT_SOURCE_DIR}/pydolphindb)
+
+if(WIN32)
+    install(FILES ${PROJECT_SOURCE_DIR}/api-cplusplus/bin/mingw_x64/libDolphinDBAPI.dll
+        DESTINATION ${PROJECT_SOURCE_DIR}/pydolphindb)
+elseif(UNIX)
+    install(FILES ${PROJECT_SOURCE_DIR}/api-cplusplus/bin/linux_x64/libDolphinDBAPI.so
+        DESTINATION ${PROJECT_SOURCE_DIR}/pydolphindb)
+endif()

@@ -32,7 +32,7 @@
 #include <DolphinDB.h>
 #include <Util.h>
 
-#include "src/Utils.h"
+#include "Utils.h"
 
 namespace pydolphindb {
 

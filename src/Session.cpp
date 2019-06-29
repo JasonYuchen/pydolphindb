@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include "src/Session.h"
+#include "Session.h"
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define LIKELY(x) (__builtin_expect((x), 1))
