@@ -2,8 +2,8 @@ import re
 import uuid
 import numpy as np
 import pandas as pd
-from dolphindb.table import Table
-from dolphindb.settings import *
+from .table import Table
+from .settings import *
 from threading import Lock
 
 import os
@@ -11,7 +11,7 @@ import sys
 
 sys.path.append(os.path.dirname(__file__))
 
-import pydolphindb
+import pydolphindbimpl
 
 def _generate_tablename():
     return "TMP_TBL_" + uuid.uuid4().hex[:8]
@@ -32,7 +32,7 @@ class session(object):
     4: Matrix object returns a numpy array
     """
     def __init__(self, host=None, port=None, userid="", password=""):
-        self.cpp = pydolphindb.sessionimpl()
+        self.cpp = pydolphindbimpl.session()
         self.host = host
         self.port = port
         self.userid = userid

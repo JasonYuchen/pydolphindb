@@ -70,11 +70,16 @@ DataFrame       TABLE
 2.start build in the `pydolphindb` folder
 
 ```
-cmake . -DPYTHON_EXECUTABLE=/path/to/Python -DOPENSSL_LIB_PATH=/path/to/openssl-1.0.2/lib -DCMAKE_BUILD_TYPE=Release
+mkdir build && cd build
+cmake .. -DOPENSSL_LIB_PATH=/path/to/openssl-1.0.2/lib
+make && make install
+```
 
-make
-
-make install
+Some optional macros:
+```
+-DPYTHON_EXECUTABLE=/path/to/python
+-DPYTHON_MODULE_EXTENSION=extension_string
+-DVERSION_INFO=version_string
 ```
 
 3.use `pydolphindb/pydolphindb` as a Python module folder

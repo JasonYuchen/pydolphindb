@@ -1,6 +1,6 @@
 from pandas import DataFrame
-from dolphindb.vector import Vector
-from dolphindb.vector import FilterCond
+from .vector import Vector
+from .vector import FilterCond
 import uuid
 import copy
 import builtins
